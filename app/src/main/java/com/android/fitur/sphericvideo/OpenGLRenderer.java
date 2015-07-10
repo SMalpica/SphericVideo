@@ -102,7 +102,7 @@ public class OpenGLRenderer implements Renderer {
 
     /**
      * onSurfaceChanged is called whenever the surface has changed. This is
-     * called at least oncee when the surface is initialized. Keep in mind that
+     * called at least once when the surface is initialized. Keep in mind that
      * Android normally restarts an Activity on rotation, and in that case, the
      * renderer will be destroyed and a new one created.
      *
