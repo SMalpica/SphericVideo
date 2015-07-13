@@ -54,9 +54,12 @@ public class OpenGLRenderer implements Renderer {
     private TextureShaderProgram textureProgram;
     private ColorShaderProgram colorProgram;
     private int texture;
+    private int fps;
+    private long lastTime;
 
     public OpenGLRenderer(Context context){
         this.context = context;
+        lastTime = System.currentTimeMillis();
     }
 
     @Override
