@@ -103,7 +103,7 @@ public class OpenGLRenderer implements Renderer {
         /*translateM(modelMatrix, 0, 0f, 0f, -2.5f);
         rotateM(modelMatrix, 0, -60f, 1f, 0f, 0f);*/
 //        //multiply two transformation matrices
-//        final float[] temp = new float[16];
+//        final float[] temp =i7t new float[16];
 //        multiplyMM(temp, 0, projectionMatrix, 0, modelMatrix, 0);
 //        System.arraycopy(temp, 0, projectionMatrix, 0, temp.length);
 
