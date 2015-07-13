@@ -24,6 +24,8 @@ import static android.opengl.GLES20.glUniform4f;
 import static android.opengl.GLES20.glUseProgram;
 import static android.opengl.GLES20.glVertexAttribPointer;
 import static android.opengl.GLES20.glViewport;
+import static android.opengl.GLES20.glUniformMatrix4fv;
+import static android.opengl.Matrix.*;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -35,69 +37,36 @@ import javax.microedition.khronos.opengles.GL10;
 import android.content.Context;
 import android.opengl.GLSurfaceView.Renderer;
 
+import com.android.fitur.sphericvideo.Objects.Sphere;
+import com.android.fitur.sphericvideo.programs.ColorShaderProgram;
+import com.android.fitur.sphericvideo.programs.TextureShaderProgram;
 import com.android.fitur.sphericvideo.util.LoggerConfig;
 import com.android.fitur.sphericvideo.util.ShaderHelper;
 import com.android.fitur.sphericvideo.util.TextResourceReader;
+import com.android.fitur.sphericvideo.util.TextureHelper;
 
 public class OpenGLRenderer implements Renderer {
-    private static final String U_COLOR = "u_Color";
-    private static final String A_POSITION = "a_Position";
-    private static final int POSITION_COMPONENT_COUNT = 3;
-    private static final int BYTES_PER_FLOAT = 4;
-    private final FloatBuffer vertexData;
     private final Context context;
-    private int program;
-    private int uColorLocation;
-    private int aPositionLocation;
+    private final float[] projectionMatrix = new float[16];
+    private final float[] modelMatrix = new float[16];
+    private Sphere sphere;
+//    private Mallet mallet;
+    private TextureShaderProgram textureProgram;
+    private ColorShaderProgram colorProgram;
+    private int texture;
 
     public OpenGLRenderer(Context context){
         this.context = context;
-        vertexData = ByteBuffer
-                .allocateDirect(SphereVertices.sphere5Verts.length * BYTES_PER_FLOAT)
-                .order(ByteOrder.nativeOrder())
-                .asFloatBuffer();
-
-        vertexData.put(SphereVertices.sphere5Verts);
     }
 
     @Override
     public void onSurfaceCreated(GL10 glUnused, EGLConfig config) {
-        /*
-		// Set the background clear color to red. The first component is red,
-		// the second is green, the third is blue, and the last component is
-		// alpha, which we don't use in this lesson.
-		glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
-         */
-
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-
-        String vertexShaderSource = TextResourceReader
-                .readTextFileFromResource(context, R.raw.simple_vertex_shader);
-        String fragmentShaderSource = TextResourceReader
-                .readTextFileFromResource(context, R.raw.simple_fragment_shader);
-
-        int vertexShader = ShaderHelper.compileVertexShader(vertexShaderSource);
-        int fragmentShader = ShaderHelper.compileFragmentShader(fragmentShaderSource);
-
-        program = ShaderHelper.linkProgram(vertexShader, fragmentShader);
-
-        if (LoggerConfig.ON) {
-            ShaderHelper.validateProgram(program);
-        }
-
-        glUseProgram(program);
-
-        uColorLocation = glGetUniformLocation(program, U_COLOR);
-
-        aPositionLocation = glGetAttribLocation(program, A_POSITION);
-
-        // Bind our data, specified by the variable vertexData, to the vertex
-        // attribute at location A_POSITION_LOCATION.
-        vertexData.position(0);
-        glVertexAttribPointer(aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT,
-                false, 0, vertexData);
-
-        glEnableVertexAttribArray(aPositionLocation);
+        sphere = new Sphere();
+//        mallet = new Mallet();
+        textureProgram = new TextureShaderProgram(context);
+        colorProgram = new ColorShaderProgram(context);
+        texture = TextureHelper.loadTexture(context, R.drawable.air_hockey_surface);
     }
 
     /**
@@ -115,6 +84,29 @@ public class OpenGLRenderer implements Renderer {
     public void onSurfaceChanged(GL10 glUnused, int width, int height) {
         // Set the OpenGL viewport to fill the entire surface.
         glViewport(0, 0, width, height);
+
+        final float aspectRatio = width > height ?
+                (float) width / (float) height :
+                (float) height / (float) width;
+        if (width > height) {
+            // Landscape
+            orthoM(projectionMatrix, 0, -aspectRatio, aspectRatio, -1f, 1f, -1f, 1f);
+        } else {
+            // Portrait or square
+            orthoM(projectionMatrix, 0, -1f, 1f, -aspectRatio, aspectRatio, -1f, 1f);
+        }
+//        ShaderHelper.perspectiveM(projectionMatrix, 45, (float) width
+//                / (float) height, 1f, 10f);
+
+//        setIdentityM(modelMatrix, 0);
+//        translateM(modelMatrix, 0, 0f, 0f, 2f);
+        /*translateM(modelMatrix, 0, 0f, 0f, -2.5f);
+        rotateM(modelMatrix, 0, -60f, 1f, 0f, 0f);*/
+//        //multiply two transformation matrices
+//        final float[] temp = new float[16];
+//        multiplyMM(temp, 0, projectionMatrix, 0, modelMatrix, 0);
+//        System.arraycopy(temp, 0, projectionMatrix, 0, temp.length);
+
     }
 
     /**
@@ -125,7 +117,15 @@ public class OpenGLRenderer implements Renderer {
     public void onDrawFrame(GL10 glUnused) {
         // Clear the rendering surface.
         glClear(GL_COLOR_BUFFER_BIT);
-        glUniform4f(uColorLocation, 1.0f, 1.0f, 1.0f, 1.0f);
-        glDrawArrays(GL_TRIANGLES, 0, SphereVertices.sphere5Verts.length);
+        // Draw the table.
+        textureProgram.useProgram();
+        textureProgram.setUniforms(projectionMatrix, texture);
+        sphere.bindData(textureProgram);
+        sphere.draw();
+        // Draw the mallets.
+//        colorProgram.useProgram();
+//        colorProgram.setUniforms(projectionMatrix);
+//        mallet.bindData
+
     }
 }
