@@ -46,7 +46,7 @@ import com.android.fitur.sphericvideo.util.TextResourceReader;
 import com.android.fitur.sphericvideo.util.TextureHelper;
 
 public class OpenGLRenderer implements Renderer {
-    private final Context context;
+    public final Context context;
     private final float[] projectionMatrix = new float[16];
     private final float[] modelMatrix = new float[16];
     private Sphere sphere;

@@ -1,6 +1,11 @@
 package com.android.fitur.sphericvideo.Objects;
 
+import android.content.Context;
+import android.util.Log;
+
 import com.android.fitur.sphericvideo.Constants;
+import com.android.fitur.sphericvideo.Sphere100Texture;
+import com.android.fitur.sphericvideo.Sphere100Vertices;
 import com.android.fitur.sphericvideo.SphereTextCoord;
 import com.android.fitur.sphericvideo.SphereVertices;
 import com.android.fitur.sphericvideo.data.VertexArray;
@@ -20,23 +25,32 @@ public class Sphere {
     private final VertexArray vertexArray;
 
     private static final float[] VERTEX_DATA= crearVertexData();
+//private static float[] VERTEX_DATA;
 
-    private static float[] crearVertexData(){
+//    public static float[] crearVertexData(Context context){
+    public static float[] crearVertexData(){
+        Log.e("ERRORES", "en crear vertex data");
         // Order of coordinates: X, Y, Z, S, T
         float[] resul = new float[SphereVertices.sphere5Verts.length+ SphereTextCoord.sphere5TexCoords.length];
+//        float[] resul = new float[Sphere100Vertices.sphere100vertice.length+ Sphere100Texture.sphere100texture.length];
+        Log.e("ERRORES", "array creado");
+
         int posicion = 0;
         int posvertices=0;
         int postextura=0;
         for(int i=0; i<SphereVertices.sphere5Verts.length/3; i++){
+//        for(int i=0; i<Sphere100Vertices.sphere100vertice.length/3; i++){
             int aux = 0;
             while(aux<3){
                 resul[posicion]=SphereVertices.sphere5Verts[posvertices];
+//                resul[posicion]=Sphere100Vertices.sphere100vertice[posvertices];
                 aux++;
                 posvertices++;
                 posicion++;
             }
             while(aux<5){
                 resul[posicion]=SphereTextCoord.sphere5TexCoords[postextura];
+//                resul[posicion]=Sphere100Vertices.sphere100vertice[postextura];
                 aux++;
                 postextura++;
                 posicion++;
@@ -48,6 +62,7 @@ public class Sphere {
                 System.out.println();
             }
         }
+//        VERTEX_DATA = resul;
         return resul;
     }
 

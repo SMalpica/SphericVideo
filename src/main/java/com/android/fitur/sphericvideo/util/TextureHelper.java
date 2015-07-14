@@ -17,7 +17,7 @@ import static android.opengl.GLES20.GL_TEXTURE_MIN_FILTER;
 import static android.opengl.GLES20.GL_TEXTURE_MAG_FILTER;
 import static android.opengl.GLES20.GL_LINEAR;
 import static android.opengl.GLES20.GL_LINEAR_MIPMAP_LINEAR;
-
+//TODO: indexing improves performance
 /**
  * Created by Fitur on 13/07/2015.
  */
