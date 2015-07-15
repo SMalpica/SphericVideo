@@ -4,15 +4,16 @@ import android.content.Context;
 import android.util.Log;
 
 import com.android.fitur.sphericvideo.Constants;
-import com.android.fitur.sphericvideo.Sphere100Texture;
-import com.android.fitur.sphericvideo.Sphere100Vertices;
 import com.android.fitur.sphericvideo.SphereTextCoord;
 import com.android.fitur.sphericvideo.SphereVertices;
 import com.android.fitur.sphericvideo.data.VertexArray;
 import com.android.fitur.sphericvideo.programs.TextureShaderProgram;
 
+import java.util.List;
+
 import static android.opengl.GLES20.GL_TRIANGLES;
 import static android.opengl.GLES20.glDrawArrays;
+import static android.opengl.Matrix.*;
 /**
  * Created by Fitur on 13/07/2015.
  */
@@ -21,10 +22,15 @@ public class Sphere {
     private static final int TEXTURE_COORDINATES_COMPONENT_COUNT = 2;
     private static final int STRIDE = (POSITION_COMPONENT_COUNT
             + TEXTURE_COORDINATES_COMPONENT_COUNT) * Constants.BYTES_PER_FLOAT;
+    public static final int numeroVerticesUnicos = 382;
+    public static final float radio = 0.5f;
+    public static final int numVertices = SphereVertices.sphere5Verts.length;
 
     private final VertexArray vertexArray;
+    private final List<ObjectBuilder.DrawCommand> drawList;
 
-    private static final float[] VERTEX_DATA= crearVertexData();
+    public static final float[] VERTEX_DATA= crearVertexData();
+
 //private static float[] VERTEX_DATA;
 
 //    public static float[] crearVertexData(Context context){
@@ -42,18 +48,18 @@ public class Sphere {
 //        for(int i=0; i<Sphere100Vertices.sphere100vertice.length/3; i++){
             int aux = 0;
             while(aux<3){
-                resul[posicion]=SphereVertices.sphere5Verts[posvertices];
+                resul[posicion++]=SphereVertices.sphere5Verts[posvertices++];
 //                resul[posicion]=Sphere100Vertices.sphere100vertice[posvertices];
                 aux++;
-                posvertices++;
-                posicion++;
+//                posvertices++;
+//                posicion++;
             }
             while(aux<5){
-                resul[posicion]=SphereTextCoord.sphere5TexCoords[postextura];
+                resul[posicion++]=SphereTextCoord.sphere5TexCoords[postextura++];
 //                resul[posicion]=Sphere100Vertices.sphere100vertice[postextura];
                 aux++;
-                postextura++;
-                posicion++;
+//                postextura++;
+//                posicion++;
             }
         }
         for(int i=0; i<resul.length/5; i++){
@@ -69,6 +75,8 @@ public class Sphere {
 
     public Sphere() {
         vertexArray = new VertexArray(VERTEX_DATA);
+        ObjectBuilder.GeneratedData generatedData = ObjectBuilder.createSphereObject(numVertices);
+        drawList = generatedData.drawList;
     }
 
     public void bindData(TextureShaderProgram textureProgram) {
@@ -84,7 +92,12 @@ public class Sphere {
                 STRIDE);
     }
 
+//    public void draw() {
+//        glDrawArrays(GL_TRIANGLES, 0, SphereVertices.sphere5Verts.length);
+//    }
     public void draw() {
-        glDrawArrays(GL_TRIANGLES, 0, SphereVertices.sphere5Verts.length);
+        for (ObjectBuilder.DrawCommand drawCommand : drawList) {
+            drawCommand.draw();
+        }
     }
 }

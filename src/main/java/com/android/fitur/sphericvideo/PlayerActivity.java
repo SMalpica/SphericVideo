@@ -19,6 +19,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -28,6 +29,7 @@ import android.widget.Toast;
 public class PlayerActivity extends Activity {
     private GLSurfaceView glSurfaceView;
     private boolean rendererSet = false;
+    private OpenGLRenderer renderer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +48,7 @@ public class PlayerActivity extends Activity {
         final View contentView = findViewById(android.R.id.content);
         contentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE);*/
         glSurfaceView = new GLSurfaceView(this);
+        renderer = new OpenGLRenderer(this);
         final ActivityManager activityManager =
                 (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         final ConfigurationInfo configurationInfo =
@@ -66,7 +69,7 @@ public class PlayerActivity extends Activity {
             // Request an OpenGL ES 2.0 compatible context.
             glSurfaceView.setEGLContextClientVersion(2);
             // Assign our renderer.
-            glSurfaceView.setRenderer(new OpenGLRenderer(this));
+            glSurfaceView.setRenderer(renderer);
             rendererSet = true;
         } else {
             Toast.makeText(this, "This device does not support OpenGL ES 2.0.",
@@ -74,7 +77,41 @@ public class PlayerActivity extends Activity {
             return;
         }
         setContentView(glSurfaceView);
-//        setContentView(R.layout.activity_player);
+        glSurfaceView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event != null) {
+                    // Convert touch coordinates into normalized device
+                    // coordinates, keeping in mind that Android's Y
+                    // coordinates are inverted.
+                    final float normalizedX =
+                            (event.getX() / (float) v.getWidth()) * 2 - 1;
+                    final float normalizedY =
+                            -((event.getY() / (float) v.getHeight()) * 2 - 1);
+                    //        setContentView(R.layout.activity_player);
+                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                        glSurfaceView.queueEvent(new Runnable() {
+                            @Override
+                            public void run() {
+                                renderer.handleTouchPress(
+                                        normalizedX, normalizedY);
+                            }
+                        });
+                    } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+                        glSurfaceView.queueEvent(new Runnable() {
+                            @Override
+                            public void run() {
+                                renderer.handleTouchDrag(
+                                        normalizedX, normalizedY);
+                            }
+                        });
+                    }
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        });
     }
 
     @Override
